@@ -1,110 +1,128 @@
-import React, { useState } from "react";
-import { useBitacora } from "../hooks/useBitacora.js";
+import { useState } from "react";
 
-export default function BitacoraForm() {
-  const { addBitacora } = useBitacora();
+export default function BitacoraForm({ onAdd }) {
   const [form, setForm] = useState({
     area: "",
     sector: "",
     titulo: "",
     fechaEvento: "",
-    severidad: "Baja",
+    severidad: "",
     descripcion: "",
-    foto: null,
+    fotoUrl: "",
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
-
-  const handleFile = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const previewURL = URL.createObjectURL(file);
-    setForm({ ...form, foto: previewURL }); // No usa localStorage
-  }
-};
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.titulo || !form.descripcion || !form.fechaEvento) return;
-    addBitacora(form);
+
+    const nuevo = {
+      id: Date.now(),
+      ...form,
+      fechaRegistro: new Date().toLocaleString(),
+    };
+
+    onAdd(nuevo);
+
     setForm({
       area: "",
       sector: "",
       titulo: "",
       fechaEvento: "",
-      severidad: "Baja",
+      severidad: "",
       descripcion: "",
-      foto: null,
+      fotoUrl: "",
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bitacora-form">
-      <div className="form-row">
-        <input
-          name="area"
-          placeholder="Área"
-          value={form.area}
-          onChange={handleChange}
-        />
-        <input
-          name="sector"
-          placeholder="Sector"
-          value={form.sector}
-          onChange={handleChange}
-        />
-      </div>
+    <>
+      <h1 className="title">🧾 Nueva Bitácora</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="label">Área</label>
+          <input
+            name="area"
+            value={form.area}
+            onChange={handleChange}
+            className="input"
+            required
+          />
+        </div>
 
-      <input
-        name="titulo"
-        placeholder="Título del evento"
-        value={form.titulo}
-        onChange={handleChange}
-      />
+        <div>
+          <label className="label">Sector</label>
+          <input
+            name="sector"
+            value={form.sector}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
 
-      <div className="form-row">
-        <label>Fecha del evento:</label>
-        <input
-          type="date"
-          name="fechaEvento"
-          value={form.fechaEvento}
-          onChange={handleChange}
-        />
+        <div>
+          <label className="label">Título</label>
+          <input
+            name="titulo"
+            value={form.titulo}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
 
-        <label>Severidad:</label>
-        <select
-          name="severidad"
-          value={form.severidad}
-          onChange={handleChange}
-        >
-          <option value="Baja">Baja</option>
-          <option value="Media">Media</option>
-          <option value="Alta">Alta</option>
-        </select>
-      </div>
+        <div>
+          <label className="label">Fecha del evento</label>
+          <input
+            type="date"
+            name="fechaEvento"
+            value={form.fechaEvento}
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
 
-      <textarea
-        name="descripcion"
-        placeholder="Descripción del evento"
-        value={form.descripcion}
-        onChange={handleChange}
-      />
+        <div>
+          <label className="label">Severidad</label>
+          <select
+            name="severidad"
+            value={form.severidad}
+            onChange={handleChange}
+            className="input"
+          >
+            <option value="">Selecciona</option>
+            <option value="Baja">Baja</option>
+            <option value="Media">Media</option>
+            <option value="Alta">Alta</option>
+            <option value="Crítica">Crítica</option>
+          </select>
+        </div>
 
-      <div className="form-row">
-  <label>URL de foto (Drive u otra):</label>
-  <input
-    type="url"
-    name="foto"
-    placeholder="https://drive.google.com/..."
-    value={form.foto || ""}
-    onChange={handleChange}
-  />
-</div>
+        <div>
+          <label className="label">Descripción</label>
+          <textarea
+            name="descripcion"
+            value={form.descripcion}
+            onChange={handleChange}
+            className="input h-24"
+          />
+        </div>
 
-      <button type="submit">Registrar evento</button>
-    </form>
+        <div>
+          <label className="label">URL de la foto (Drive o web)</label>
+          <input
+            type="url"
+            name="fotoUrl"
+            value={form.fotoUrl}
+            onChange={handleChange}
+            className="input"
+            placeholder="https://drive.google.com/..."
+          />
+        </div>
+
+        <button className="btn w-full mt-2">Guardar registro</button>
+      </form>
+    </>
   );
 }
